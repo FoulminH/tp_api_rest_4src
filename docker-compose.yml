@@ -1,30 +1,42 @@
 services:
   fastapi:
-    build: .
+    restart: unless-stopped
+    build:
+      context: .
+      network: host
     container_name: fastapi_app
     ports:
       - "8000:8000"
     depends_on:
       - mariadb
     environment:
-      - DB_HOST=mariadb
-      - DB_USER=user
-      - DB_PASSWORD=password
-      - DB_NAME=test_db
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - ./app:/app
+    networks:
+      - api_rest
 
   mariadb:
     image: mariadb:11
     container_name: mariadb_container
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: test_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+    networks:
+      - api_rest
 
 volumes:
   mariadb_data:
+
+networks:
+  api_rest:
