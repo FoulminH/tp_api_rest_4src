@@ -15,11 +15,13 @@ class Database:
                 port=3306,
                 database="test_db"
         )
+        
+        self.cursor = self.connection.cursor(dictionary=True)
 
     def __enter__(self):
-        self.cursor = self.connection.cursor(dictionary=True)
-        return self.cursor
+        return self.connection, self.cursor
     
     def __exit__(self, exc_type, exc_value, exc_traceback):
         self.cursor.close()
         self.connection.close()
+
